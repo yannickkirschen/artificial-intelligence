@@ -6,7 +6,14 @@
         80,
         120
     ],
-    "cSpell.words": [],
+    "cSpell.words": [
+        "ACSP",
+        "Jens",
+        "Kools",
+        "Stroetmann",
+        "tablefmt",
+        "Trabant"
+    ],
     "autopep8.args": [
         "--max-line-length=140"
     ]
