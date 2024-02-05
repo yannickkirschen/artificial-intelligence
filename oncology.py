@@ -29,7 +29,7 @@ from dataclasses import dataclass
 
 from tabulate import tabulate
 
-from backtrack_solver import CSP, Solution, all_different, solve
+from backtrack_solver import CSP, Assignment, all_different, solve
 
 
 @dataclass
@@ -40,7 +40,7 @@ class _Oncology:
     cancers: set[str]
 
 
-def _print_solution(solution: Solution, data: _Oncology) -> None:
+def _print_solution(solution: Assignment, data: _Oncology) -> None:
     rooms: list[list[str]] = []
 
     for i in range(1, 5+1):
@@ -78,10 +78,10 @@ def main():
         # The Trabant driver smokes Harvest 23 and is in the room next to the tongue cancer patient.
         'Trabant == Harvest',
         'abs(Trabant - tongue) == 1',
-        'abs(Harvest - tongue) == 1',
 
         # Rolf is in the last room and has laryngeal cancer.
-        'Rolf == 5 and Rolf == laryngeal',
+        'Rolf == 5',
+        'Rolf == laryngeal',
 
         # The West smoker is in the first room.
         'West == 1',
@@ -89,14 +89,15 @@ def main():
         # The Mazda driver has tongue cancer and is next to the Trabant driver.
         'Mazda == tongue',
         'abs(Mazda - Trabant) == 1',
-        'abs(tongue - Trabant) == 1',
 
         # The Nissan driver is next to the tongue cancer patient.
         'abs(Nissan - tongue) == 1',
 
         # Rudolf is desperately begging for euthanasia and his room is between the room of the Camel smoker
         # and the room of the Trabant driver.
-        'Rudolf - Camel + 2 == Trabant or Rudolf - Trabant + 2 == Camel',
+        'abs(Rudolf - Camel) == 1',
+        'abs(Rudolf - Trabant) == 1',
+        'Camel != Trabant',
 
         # '',  # Tomorrow is the last birthday of the Seat driver.
 
@@ -112,7 +113,6 @@ def main():
         # The Mercedes driver smokes a pipe and is next to the Camel smoker.
         'Mercedes == Pipe',
         'abs(Mercedes - Camel) == 1',
-        'abs(Pipe - Camel) == 1',
 
         # Jens is next to the Luckies smoker.
         'abs(Jens - Luckies) == 1',
@@ -125,7 +125,7 @@ def main():
         | all_different(cancers)
 
     csp: CSP = (variables, values, constraints)
-    solution: Solution = solve(csp)
+    solution: Assignment = solve(csp)
 
     if solution is None:
         print('No solution found')

@@ -36,7 +36,9 @@ from dataclasses import dataclass
 
 from tabulate import tabulate
 
-from backtrack_solver import CSP, Solution, all_different, solve
+from backtrack_solver import CSP, Assignment, all_different, solve
+
+from zebra2 import solve as solve2
 
 
 @dataclass
@@ -48,7 +50,7 @@ class _Zebra:
     colors: set[str]
 
 
-def _print_solution(solution: Solution, data: _Zebra) -> None:
+def _print_solution(solution: Assignment, data: _Zebra) -> None:
     houses: list[list[str]] = []
 
     for i in range(1, 5+1):
@@ -102,7 +104,10 @@ def main():
         | all_different(colors)
 
     csp: CSP = (variables, values, constraints)
-    solution: Solution = solve(csp)
+    solution: Assignment = solve2(csp)
+
+    for x in solution:
+        print(f'{x}: {solution[x]}')
 
     if solution is None:
         print('No solution found')

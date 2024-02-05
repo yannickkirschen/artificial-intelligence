@@ -7,10 +7,19 @@ from typing import TypeVar
 
 Value = TypeVar('Value')
 Element = TypeVar('Element')
-CSP = tuple[set[str] | list[str], set[Value], set[str]]
-ACSP = tuple[set[str] | list[str], set[Value], list[tuple[str, set[str]]]]
-Assignment = dict[str, Value]
-Solution = dict[str, Value]
+Variable = str
+Formula = str
+CSP = tuple[set[Variable] | list[Variable], set[Value], set[Formula]]
+ACSP = tuple[set[Variable] | list[Variable], set[Value], list[tuple[Formula, set[Variable]]]]
+Assignment = dict[Variable, Value]
+
+
+def solve(p: CSP) -> Assignment | None:
+    '''Solves a CSP using backtracking.'''
+
+    variables, values, constraints = p
+    csp = (variables, values, [(f, _collect_variables(f)) for f in constraints])
+    return _backtrack_search({}, csp)
 
 
 def all_different(v: set[str]) -> set[str]:
@@ -21,7 +30,7 @@ def all_different(v: set[str]) -> set[str]:
             }
 
 
-def _collect_variables(expression: str) -> set[str]:
+def _collect_variables(expression: Formula) -> set[str]:
     tree = ast.parse(expression)
     return {node.id for node in ast.walk(tree)
             if isinstance(node, ast.Name)
@@ -29,14 +38,16 @@ def _collect_variables(expression: str) -> set[str]:
             }
 
 
-def _is_consistent(var: str, value: Value, assignment: dict[str, Value], constraints: list[tuple[str, set[str]]]) -> bool:
-    new_assign = assignment.copy()
-    new_assign[var] = value
+def _is_consistent(var: Variable, value: Value, assignment: Assignment, constraints: list[tuple[Formula, set[Variable]]]) -> bool:
+    new_assignment = assignment.copy()
+    new_assignment[var] = value
 
-    return all(eval(f, new_assign) for (f, Vs) in constraints if var in Vs and Vs <= new_assign.keys())  # pylint: disable=W0123
+    return all(eval(f, new_assignment) for (f, Vs) in constraints  # pylint: disable=W0123
+               if var in Vs and Vs <= new_assignment.keys()
+               )
 
 
-def _backtrack_search(assignment: dict[str, Value], p: ACSP) -> Solution | None:
+def _backtrack_search(assignment: Assignment, p: ACSP) -> Assignment | None:
     variables, values, constraints = p
     if len(assignment) == len(variables):
         return assignment
@@ -56,11 +67,3 @@ def _backtrack_search(assignment: dict[str, Value], p: ACSP) -> Solution | None:
                 return solution
 
     return None
-
-
-def solve(p: CSP) -> Solution | None:
-    '''Solves a CSP using backtracking.'''
-
-    variables, values, constraints = p
-    csp = (variables, values, [(f, _collect_variables(f)) for f in constraints])
-    return _backtrack_search({}, csp)
