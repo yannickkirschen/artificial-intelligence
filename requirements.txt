@@ -1,1 +1,2 @@
 tabulate
+z3-solver
