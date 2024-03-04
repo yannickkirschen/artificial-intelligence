@@ -3,6 +3,8 @@ from math import pi
 
 import numpy as np
 
+import linear_regression
+
 
 def read_csv(file: str) -> (np.array, np.array):
     with open(file) as f:
@@ -21,13 +23,8 @@ def read_csv(file: str) -> (np.array, np.array):
 
 def main():
     x, y = read_csv('chainsaw-massacre.csv')
-    w = np.linalg.solve(x.T @ x, x.T @ y)
 
-    rss = np.sum((x @ w - y) ** 2)
-    y_mean = np.mean(y)
-    tss = np.sum((y - y_mean) ** 2)
-
-    r_squared = 1 - rss / tss
+    r_squared = linear_regression.calc(x, y)
     print(f'R²: {r_squared}')
 
 
