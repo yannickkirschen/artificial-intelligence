@@ -1,2 +1,4 @@
 tabulate
 z3-solver
+numpy
+scikit-learn
