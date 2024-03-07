@@ -1,14 +1,13 @@
-import csv
+from csv import DictReader
 from math import pi
 
 import numpy as np
-
 import linear_regression
 
 
 def read_csv(file: str) -> tuple[np.array, np.array]:
     with open(file) as f:
-        reader = csv.DictReader(f, delimiter=',')
+        reader = DictReader(f, delimiter=',')
 
         x = []
         y = []

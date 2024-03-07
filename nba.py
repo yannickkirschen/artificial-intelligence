@@ -1,9 +1,8 @@
 """To what extent can you predict the weight of a player given his height and his age?"""
 
-import csv
+from csv import DictReader
 
 import numpy as np
-
 import linear_regression
 
 
@@ -21,7 +20,7 @@ def pos_to_num(pos: str) -> list[float]:
 
 def read_csv(file: str) -> tuple[np.array, np.array]:
     with open(file) as f:
-        reader = csv.DictReader(f, delimiter=',')
+        reader = DictReader(f, delimiter=',')
 
         x = []
         y = []
