@@ -6,7 +6,7 @@ import numpy as np
 import linear_regression
 
 
-def read_csv(file: str) -> (np.array, np.array):
+def read_csv(file: str) -> tuple[np.array, np.array]:
     with open(file) as f:
         reader = csv.DictReader(f, delimiter=',')
 

@@ -19,7 +19,7 @@ def pos_to_num(pos: str) -> list[float]:
             raise ValueError(f'Unknown position: {pos}')
 
 
-def read_csv(file: str) -> (np.array, np.array):
+def read_csv(file: str) -> tuple[np.array, np.array]:
     with open(file) as f:
         reader = csv.DictReader(f, delimiter=',')
 
