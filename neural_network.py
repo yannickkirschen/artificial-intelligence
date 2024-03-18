@@ -46,8 +46,8 @@ class Network:
         self.func_o = func_o
         self.func_prime_o = func_prime_o
 
-    def feedforward(self, x):
-        ah = self.func_h(self.weights_h @ x + self.biases_h)  # hidden layer
+    def feedforward(self, data):
+        ah = self.func_h(self.weights_h @ data + self.biases_h)  # hidden layer
         ao = self.func_o(self.weights_o @ ah + self.biases_o)  # output layer
         return ao
 
@@ -80,28 +80,28 @@ class Network:
         self.weights_h -= alpha * nabla_wh
         self.weights_o -= alpha * nabla_wo
 
-    def backprop(self, x, y):
+    def backprop(self, data, classification):
         # feedforward pass
-        zh = self.weights_h @ x + self.biases_h
+        zh = self.weights_h @ data + self.biases_h
         ah = self.func_h(zh)
 
         zo = self.weights_o @ ah + self.biases_o
         ao = self.func_o(zo)
 
         # backwards pass, output layer
-        epsilon_o = (ao - y) * self.func_prime_o(zo)
+        epsilon_o = (ao - classification) * self.func_prime_o(zo)
         nabla_bo = epsilon_o
         nabla_wo = epsilon_o @ ah.transpose()
 
         # backwards pass, hidden layer
         epsilon_h = (self.weights_o.transpose() @ epsilon_o) * self.func_prime_h(zh)
         nabla_bh = epsilon_h
-        nabla_wh = epsilon_h @ x.transpose()
+        nabla_wh = epsilon_h @ data.transpose()
         return nabla_bh, nabla_bo, nabla_wh, nabla_wo
 
     def evaluate(self, test_data):
-        test_results = [(np.argmax(self.feedforward(x)), y) for x, y in test_data]
-        return sum(y1 == y2 for y1, y2 in test_results)
+        test_results = [(np.argmax(self.feedforward(data)), classification) for data, classification in test_data]
+        return sum(actual == expected for actual, expected in test_results)
 
 
 def most_common(lst: List[Any]):
