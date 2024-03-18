@@ -1,7 +1,7 @@
 import gzip
 import pickle
 import random
-from typing import Callable, Any, List
+from typing import Callable, List
 
 import numpy as np
 
@@ -104,10 +104,6 @@ class Network:
         return sum(actual == expected for actual, expected in test_results)
 
 
-def most_common(lst: List[Any]):
-    return max(set(lst), key=lst.count)
-
-
 class Ensemble:
     _l: int
     _epochs: int
@@ -148,8 +144,5 @@ class Ensemble:
         return self._networks
 
     def evaluate(self, test_data: List[np.ndarray]) -> int:
-        results = []
-        for network in self._networks:
-            test_results = [(np.argmax(network.feedforward(x)), y) for (x, y) in test_data]
-            results.append(sum(int(x == y) for (x, y) in test_results))
-        return most_common(results)
+        results = [network.evaluate(test_data) for network in self._networks]
+        return max(set(results), key=results.count)
