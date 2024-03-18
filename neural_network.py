@@ -31,14 +31,14 @@ def random_matrix(rows, cols):
 class Network:
     def __init__(self, hidden_size, func_h: Callable[[int], np.ndarray], func_prime_h: Callable[[int], np.ndarray],
                  func_o: Callable[[int], np.ndarray], func_prime_o: Callable[[int], np.ndarray]):
-        self.mInputSize = 28 * 28
-        self.mHiddenSize = hidden_size
-        self.mOutputSize = 10
+        self.input_size = 28 * 28
+        self.hidden_size = hidden_size
+        self.output_size = 10
 
-        self.mBiasesH = np.zeros((self.mHiddenSize, 1))  # biases hidden layer
-        self.mBiasesO = np.zeros((self.mOutputSize, 1))  # biases output layer
-        self.mWeightsH = random_matrix(self.mHiddenSize, self.mInputSize)  # weights hidden layer
-        self.mWeightsO = random_matrix(self.mOutputSize, self.mHiddenSize)  # weights output layer
+        self.biases_h = np.zeros((self.hidden_size, 1))  # biases hidden layer
+        self.biases_o = np.zeros((self.output_size, 1))  # biases output layer
+        self.weights_h = random_matrix(self.hidden_size, self.input_size)  # weights hidden layer
+        self.weights_o = random_matrix(self.output_size, self.hidden_size)  # weights output layer
 
         self.func_h = func_h
         self.func_prime_h = func_prime_h
@@ -47,8 +47,8 @@ class Network:
         self.func_prime_o = func_prime_o
 
     def feedforward(self, x):
-        ah = self.func_h(self.mWeightsH @ x + self.mBiasesH)  # hidden layer
-        ao = self.func_o(self.mWeightsO @ ah + self.mBiasesO)  # output layer
+        ah = self.func_h(self.weights_h @ x + self.biases_h)  # hidden layer
+        ao = self.func_o(self.weights_o @ ah + self.biases_o)  # output layer
         return ao
 
     def sgd(self, training_data, epochs, mbs, alpha, test_data):
@@ -62,39 +62,39 @@ class Network:
             print('Epoch %2d: %d / %d' % (j, self.evaluate(test_data), n_test))
 
     def update_mini_batch(self, mini_batch, alpha):
-        nabla_bh = np.zeros((self.mHiddenSize, 1))  # gradient of biases  of hidden layer
-        nabla_bo = np.zeros((self.mOutputSize, 1))  # gradient of biases  of output layer
-        nabla_wh = np.zeros((self.mHiddenSize, self.mInputSize))  # gradient of weights of hidden layer
-        nabla_wo = np.zeros((self.mOutputSize, self.mHiddenSize))  # gradient of weights of output layer
+        nabla_bh = np.zeros((self.hidden_size, 1))  # gradient of biases  of hidden layer
+        nabla_bo = np.zeros((self.output_size, 1))  # gradient of biases  of output layer
+        nabla_wh = np.zeros((self.hidden_size, self.input_size))  # gradient of weights of hidden layer
+        nabla_wo = np.zeros((self.output_size, self.hidden_size))  # gradient of weights of output layer
 
-        for x, y in mini_batch:
-            dlt_nbl_bh, dlt_nbl_bo, dlt_nbl_wh, dlt_nbl_wo = self.backprop(x, y)
+        for data, classification in mini_batch:
+            dlt_nbl_bh, dlt_nbl_bo, dlt_nbl_wh, dlt_nbl_wo = self.backprop(data, classification)
             nabla_bh += dlt_nbl_bh
             nabla_bo += dlt_nbl_bo
             nabla_wh += dlt_nbl_wh
             nabla_wo += dlt_nbl_wo
 
         alpha /= len(mini_batch)  # rescale learning rate
-        self.mBiasesH -= alpha * nabla_bh
-        self.mBiasesO -= alpha * nabla_bo
-        self.mWeightsH -= alpha * nabla_wh
-        self.mWeightsO -= alpha * nabla_wo
+        self.biases_h -= alpha * nabla_bh
+        self.biases_o -= alpha * nabla_bo
+        self.weights_h -= alpha * nabla_wh
+        self.weights_o -= alpha * nabla_wo
 
     def backprop(self, x, y):
         # feedforward pass
-        zh = self.mWeightsH @ x + self.mBiasesH
+        zh = self.weights_h @ x + self.biases_h
         ah = self.func_h(zh)
 
-        zo = self.mWeightsO @ ah + self.mBiasesO
+        zo = self.weights_o @ ah + self.biases_o
         ao = self.func_o(zo)
 
         # backwards pass, output layer
-        epsilon_0 = (ao - y) * self.func_prime_o(zo)
-        nabla_bo = epsilon_0
-        nabla_wo = epsilon_0 @ ah.transpose()
+        epsilon_o = (ao - y) * self.func_prime_o(zo)
+        nabla_bo = epsilon_o
+        nabla_wo = epsilon_o @ ah.transpose()
 
         # backwards pass, hidden layer
-        epsilon_h = (self.mWeightsO.transpose() @ epsilon_0) * self.func_prime_h(zh)
+        epsilon_h = (self.weights_o.transpose() @ epsilon_o) * self.func_prime_h(zh)
         nabla_bh = epsilon_h
         nabla_wh = epsilon_h @ x.transpose()
         return nabla_bh, nabla_bo, nabla_wh, nabla_wo
