@@ -15,10 +15,5 @@ def search(start, goal, next_states):
 
 
 def path_to(state, parent):
-    path = [state]
-
-    while state != parent[state]:
-        state = parent[state]
-        path = [state] + path
-
-    return path
+    p = parent[state]
+    return [state] if p == state else path_to(p, parent) + [state]
